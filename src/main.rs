@@ -1,4 +1,4 @@
-use std::io;
+use std::{io};
 
 use crossterm::{
     cursor::{Hide, MoveToColumn, Show},
@@ -7,6 +7,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode},
     ExecutableCommand, Result,
 };
+use rand::seq::IteratorRandom;
 
 #[derive(Debug)]
 enum Color {
@@ -22,7 +23,13 @@ struct Block {
 }
 
 fn main() -> Result<()> {
-    let word = "CROOK";
+    let data = include_str!("../assets/answerlist.txt");
+    let words = data.split_whitespace();
+    let mut rng = rand::thread_rng();
+    let word = words.choose(&mut rng).unwrap().to_uppercase();
+
+    let data = include_str!("../assets/wordlist.txt");
+    let guesses: Vec<String> = data.split_whitespace().map(|x| x.to_uppercase()).collect();
 
     let mut stdout = io::stdout();
     stdout.execute(Hide)?;
@@ -48,7 +55,7 @@ fn main() -> Result<()> {
                         }
                     }
                     KeyCode::Enter => {
-                        if guess.len() == 5 {
+                        if guess.len() == 5 && guesses.contains(&guess) {
                             break;
                         }
                     }
@@ -109,10 +116,6 @@ fn main() -> Result<()> {
             }
         }
 
-        // disable_raw_mode()?;
-        // println!("{:?}", blocks);
-        // break;
-
         // Then make the necessary ones green
         for i in 0..5 {
             if blocks[i].char == word.chars().nth(i).unwrap().to_string() {
@@ -145,5 +148,7 @@ fn main() -> Result<()> {
 
     stdout.execute(Show)?;
     disable_raw_mode()?;
+
+    println!("The word was {}", word);
     Ok(())
 }
