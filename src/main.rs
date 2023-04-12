@@ -1,4 +1,4 @@
-use std::{io};
+use std::io;
 
 use crossterm::{
     cursor::{Hide, MoveToColumn, Show},
